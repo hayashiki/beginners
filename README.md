@@ -39,6 +39,8 @@ Goで簡易アプリケーションをステップバイステップで作成す
 main.goを実行する
 HelloWorldを出力する
 
+httpをHandleするメソッドはhandler.goファイルを作成して呼び出す
+
 # step1-2
 
 Webサーバをport 8000でたて、
@@ -49,15 +51,42 @@ http://localhost:8000で開いてHelloWorldをブラウザ画面から出力す�
 出力形式をJSONにして、postmanからリクエストを行い、
 JSON形式(key-value)でレスポンスを返す
 
+encoding/json パッケージを使ってJSONデータをエンコードする
+
+```
 {
-"hello": "world"
+    "hello": "world"
 }
+```
 
 # step2-1
 
 Merchant, Product, UserのStructを作成する
 各Structを初期化させ、スレッドシートにいれたデータでフィールドを満たす
 
+https://qiita.com/cotrpepe/items/b8e7f70f27813a846431
+
 # step2-2
 
 postmanからPOSTリクエスト経由で、MerchantのStructを動的に作成する
+
+- requestBody
+```
+{
+    "name": "hoge",
+    "email": "hoge@example.com"
+}
+```
+
+- response
+```
+{
+    "merchant": {
+        "ID": 1,
+        "Email": "hoge@example.com",
+        "Name": "hoge",
+        "PhotoURL": ""
+    },
+    "success": true
+}
+```
