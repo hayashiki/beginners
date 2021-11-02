@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 var schema = `
@@ -23,3 +25,20 @@ func prepareSchema(db *sqlx.DB) error {
 	return nil
 }
 
+func seed(db *sqlx.DB) error {
+	merchant := Merchant{
+		Email:    "hayashiki@gmail.com",
+		Name:     "aioue",
+		PhotoURL: "https://hoge.com",
+	}
+
+	ctx := context.Background()
+	result := db.MustExecContext(ctx,
+		"INSERT INTO merchants(email, name, photo_url)\nVALUES (?,?,?)",
+		merchant.Email, merchant.Name, merchant.PhotoURL)
+
+	log.Println("result.LastInsertId()")
+	log.Println(result.LastInsertId())
+
+	return nil
+}
