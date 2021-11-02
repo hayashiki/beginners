@@ -18,6 +18,7 @@ func main() {
 	http.HandleFunc("/", helloHandler)
 	http.HandleFunc("/merchants", createMerchantHandler)
 	http.HandleFunc("/health", healthCheckHandler)
+	http.HandleFunc("/dbinit", dbInitHandler)
 	log.Print(fmt.Sprintf("Listening on port %s", port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }

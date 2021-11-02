@@ -90,3 +90,49 @@ postmanからPOSTリクエスト経由で、MerchantのStructを動的に作成�
     "success": true
 }
 ```
+
+# step3-1
+
+sqlite3を利用してデータの永続化を行う
+
+sqliteはmysqlなどのDBと違ってインストールする必要がなく、
+ローカルにファイル形式で保存されるデータベースなので使い勝手がよい
+
+Goでsqliteのデータベースにつないでデータベース操作するには
+github.com/mattn/go-sqlite3のクライアントライブラリを利用する
+
+# step3-2
+
+DBスキーマを作成する
+step0で作成した定義に基づいて作成する
+
+ノリとしては以下
+```go
+var schema = `
+CREATE TABLE IF NOT EXISTS merchants
+(
+	id INTEGER PRIMARY KEY,
+	name TEXT,
+	email TEXT,
+	photo_url TEXT,
+	timestamp DATETIME
+)`
+
+func prepareSchema(db *sqlx.DB) error {
+	_, err := db.Exec(schema)
+	if err != nil {
+		return fmt.Errorf("could not create http_requests table: %w", err)
+	}
+	return nil
+}
+```
+
+では、どこで実行するか？
+通常はコマンドJobでスキーマ作成を行うが、その解説をしていると本筋からそれるので
+今回はWebサーバのエンドポイント経由で作成してみることにする
+
+/dbinitというエンドポイントからスキーマを作成してみよう
+
+# step3-3
+
+作成したスキーマ（テーブル）にデータを挿入する

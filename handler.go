@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,4 +50,31 @@ func createMerchantHandler(w http.ResponseWriter, r *http.Request)  {
 
 	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(&merchantResp)
+}
+
+func dbInitHandler(w http.ResponseWriter, r *http.Request) {
+	// ここからDB接続処理開始
+	var db *sqlx.DB
+	// ファイル名 この処理を実行後にファイルがカレントディレクトリで作成される
+	db, err := sqlx.Connect("sqlite3", "sqlite.db")
+	if err != nil {
+		fmt.Errorf("sqlite: could not open database: %w", err)
+		return
+	}
+	if err := db.Ping(); err != nil {
+		fmt.Errorf("sqlite: could not ping database: %w", err)
+		return
+	}
+	// DB接続処理完了
+	// スキーマ（テーブル）作成
+	if err := prepareSchema(db); err != nil {
+		fmt.Errorf("sqlite: could not prepare schema: %w", err)
+		return
+	}
+	if err != nil {
+		fmt.Errorf("sqlite: could not prepare schema: %w", err)
+		panic(err)
+	}
+	w.Header().Set("content-Type", "text/html; charset=utf8")
+	fmt.Fprint(w, "succeed")
 }
