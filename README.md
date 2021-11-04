@@ -131,7 +131,7 @@ func prepareSchema(db *sqlx.DB) error {
 通常はコマンドJobでスキーマ作成を行うが、その解説をしていると本筋からそれるので
 今回はWebサーバのエンドポイント経由で作成してみることにする
 
-/dbinitというエンドポイントからスキーマを作成してみよう
+`/dbinit` というエンドポイントからスキーマを作成してみよう
 
 # step3-3
 
@@ -149,3 +149,9 @@ func prepareSchema(db *sqlx.DB) error {
         "INSERT INTO merchants(email, name, photo_url)\nVALUES (?,?,?)",
         merchant.Email, merchant.Name, merchant.PhotoURL)
 ```
+
+# step3-4
+
+作成したデータを抽出する（複数）
+エンドポイントは"/merchants/list"とする
+RestfulのURL設計としては適切ではないのだが、 一旦はこれで。

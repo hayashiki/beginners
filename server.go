@@ -17,6 +17,8 @@ func main() {
 
 	http.HandleFunc("/", helloHandler)
 	http.HandleFunc("/merchants", createMerchantHandler)
+	// 本当は /merchants にしたいが、MethodPOSTの分岐を書くのがめんどうだったのであとでリファクタをする
+	http.HandleFunc("/merchants/list", listMerchantHandler)
 	http.HandleFunc("/health", healthCheckHandler)
 	http.HandleFunc("/dbinit", dbInitHandler)
 	http.HandleFunc("/dbseed", dbSeedHandler)
