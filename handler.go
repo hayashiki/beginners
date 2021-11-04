@@ -58,11 +58,11 @@ func dbInitHandler(w http.ResponseWriter, r *http.Request) {
 	// ファイル名 この処理を実行後にファイルがカレントディレクトリで作成される
 	db, err := sqlx.Connect("sqlite3", "sqlite.db")
 	if err != nil {
-		fmt.Errorf("sqlite: could not open database: %w", err)
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not open database: %w", err).Error())
 		return
 	}
 	if err := db.Ping(); err != nil {
-		fmt.Errorf("sqlite: could not ping database: %w", err)
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not ping database: %w", err).Error())
 		return
 	}
 	// DB接続処理完了
@@ -71,9 +71,28 @@ func dbInitHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Errorf("sqlite: could not prepare schema: %w", err)
 		return
 	}
+	w.Header().Set("content-Type", "text/html; charset=utf8")
+	fmt.Fprint(w, "succeed")
+}
+
+func dbSeedHandler(w http.ResponseWriter, r *http.Request) {
+	// ここからDB接続処理開始
+	var db *sqlx.DB
+	// ファイル名 この処理を実行後にファイルがカレントディレクトリで作成される
+	db, err := sqlx.Connect("sqlite3", "sqlite.db")
 	if err != nil {
-		fmt.Errorf("sqlite: could not prepare schema: %w", err)
-		panic(err)
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not open database: %w", err).Error())
+		return
+	}
+	if err := db.Ping(); err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not ping database: %w", err).Error())
+		return
+	}
+	// DB接続処理完了
+	// データ作成
+	if err := seed(db); err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not seed: %w", err).Error())
+		return
 	}
 	w.Header().Set("content-Type", "text/html; charset=utf8")
 	fmt.Fprint(w, "succeed")

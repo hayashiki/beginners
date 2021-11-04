@@ -136,3 +136,16 @@ func prepareSchema(db *sqlx.DB) error {
 # step3-3
 
 作成したスキーマ（テーブル）にデータを挿入する
+
+```go
+    merchant := Merchant{
+        Email:    "hayashiki@gmail.com",
+        Name:     "aioue",
+        PhotoURL: "https://hoge.com",
+    }
+    
+    ctx := context.Background()
+    result := db.MustExecContext(ctx,
+        "INSERT INTO merchants(email, name, photo_url)\nVALUES (?,?,?)",
+        merchant.Email, merchant.Name, merchant.PhotoURL)
+```
