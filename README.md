@@ -155,3 +155,9 @@ func prepareSchema(db *sqlx.DB) error {
 作成したデータを抽出する（複数）
 エンドポイントは"/merchants/list"とする
 RestfulのURL設計としては適切ではないのだが、 一旦はこれで。
+
+# step4
+
+[chi](https://github.com/go-chi/chi)を導入する
+net/httpのハンドラー周りを薄くラップしたライブラリとなる
+
