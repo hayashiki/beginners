@@ -23,6 +23,7 @@ func main() {
 	r.Post("/merchants", createMerchantHandler)
 	// 本当は /merchants にしたいが、MethodPOSTの分岐を書くのがめんどうだったのであとでリファクタをする
 	r.Get("/merchants", listMerchantHandler)
+	r.Get("/merchants/{merchantID}", getMerchantHandler)
 	r.Get("/health", healthCheckHandler)
 	r.Get("/dbinit", dbInitHandler)
 	r.Get("/dbseed", dbSeedHandler)

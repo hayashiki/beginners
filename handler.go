@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
+	"html/template"
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -29,6 +31,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createMerchantHandler(w http.ResponseWriter, r *http.Request)  {
+
 	// parse
 	merchantReq := CreateMerchantRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&merchantReq); err != nil {
@@ -98,6 +101,30 @@ func listMerchantHandler(w http.ResponseWriter, r *http.Request)  {
 	json.NewEncoder(w).Encode(&merchants)
 }
 
+func getMerchantHandler(w http.ResponseWriter, r *http.Request) {
+	var db *sqlx.DB
+	db, err := sqlx.Connect("sqlite3", "sqlite.db")
+	if err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not open database: %w", err).Error())
+		return
+	}
+	if err := db.Ping(); err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not ping database: %w", err).Error())
+		return
+	}
+
+	merchantID := chi.URLParam(r, "merchantID")
+	var merchant Merchant
+	if err := db.Get(&merchant, "Select id, name, email, photo_url FROM merchants WHERE id = ?", merchantID); err != nil {
+		// 指定したIDが見つからなかった場合の処理(NotFound)
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
+	// response
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(&merchant)
+}
+
 func dbInitHandler(w http.ResponseWriter, r *http.Request) {
 	// ここからDB接続処理開始
 	var db *sqlx.DB
@@ -142,4 +169,9 @@ func dbSeedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("content-Type", "text/html; charset=utf8")
 	fmt.Fprint(w, "succeed")
+}
+
+func New(w http.ResponseWriter, r *http.Request) {
+	tem, _ := template.ParseFiles("templates/new.html")
+	tem.Execute(w, "")
 }
