@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -37,10 +38,32 @@ func createMerchantHandler(w http.ResponseWriter, r *http.Request)  {
 	// validate
 
 	// save(DB)
-	merchant := Merchant{
-		ID:       1,
+	var db *sqlx.DB
+	// ファイル名 この処理を実行後にファイルがカレントディレクトリで作成される
+	db, err := sqlx.Connect("sqlite3", "sqlite.db")
+	if err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not open database: %w", err).Error())
+		return
+	}
+	if err := db.Ping(); err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not ping database: %w", err).Error())
+		return
+	}
+	ctx := context.Background()
+	result := db.MustExecContext(ctx,
+		"INSERT INTO merchants(email, name, photo_url)\nVALUES (?,?,?)",
+		merchantReq.Email, merchantReq.Name, merchantReq.PhotoURL)
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return
+	}
+
+	var merchant = Merchant{
+		ID:       id,
 		Email:    merchantReq.Email,
 		Name:     merchantReq.Name,
+		PhotoURL: merchantReq.PhotoURL,
 	}
 
 	// response
@@ -50,6 +73,29 @@ func createMerchantHandler(w http.ResponseWriter, r *http.Request)  {
 
 	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(&merchantResp)
+}
+
+func listMerchantHandler(w http.ResponseWriter, r *http.Request)  {
+	// read(DB)
+	var db *sqlx.DB
+	// ファイル名 この処理を実行後にファイルがカレントディレクトリで作成される
+	db, err := sqlx.Connect("sqlite3", "sqlite.db")
+	if err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not open database: %w", err).Error())
+		return
+	}
+	if err := db.Ping(); err != nil {
+		fmt.Fprintf(w, fmt.Errorf("sqlite: could not ping database: %w", err).Error())
+		return
+	}
+	//ctx := context.Background()
+	merchants := make([]*Merchant, 0)
+	if err := db.Select(&merchants, "Select id, name, email, photo_url FROM merchants"); err != nil {
+		return
+	}
+	// response
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(&merchants)
 }
 
 func dbInitHandler(w http.ResponseWriter, r *http.Request) {
