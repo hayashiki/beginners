@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/go-chi/chi"
 )
 
 const defaultPort = "8000"
@@ -15,13 +17,16 @@ func main() {
 		port = defaultPort
 	}
 
-	http.HandleFunc("/", helloHandler)
-	http.HandleFunc("/merchants", createMerchantHandler)
+	r := chi.NewRouter()
+
+	r.HandleFunc("/", helloHandler)
+	r.Post("/merchants", createMerchantHandler)
 	// 本当は /merchants にしたいが、MethodPOSTの分岐を書くのがめんどうだったのであとでリファクタをする
-	http.HandleFunc("/merchants/list", listMerchantHandler)
-	http.HandleFunc("/health", healthCheckHandler)
-	http.HandleFunc("/dbinit", dbInitHandler)
-	http.HandleFunc("/dbseed", dbSeedHandler)
+	r.Get("/merchants", listMerchantHandler)
+	r.Get("/merchants/{merchantID}", getMerchantHandler)
+	r.Get("/health", healthCheckHandler)
+	r.Get("/dbinit", dbInitHandler)
+	r.Get("/dbseed", dbSeedHandler)
 	log.Print(fmt.Sprintf("Listening on port %s", port))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), r))
 }

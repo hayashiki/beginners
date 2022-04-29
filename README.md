@@ -155,3 +155,20 @@ func prepareSchema(db *sqlx.DB) error {
 作成したデータを抽出する（複数）
 エンドポイントは"/merchants/list"とする
 RestfulのURL設計としては適切ではないのだが、 一旦はこれで。
+
+# step4-1
+
+[chi](https://github.com/go-chi/chi)を導入する
+net/httpのハンドラー周りを薄くラップしたライブラリとなる
+
+
+# step4-2
+
+- 指定したIDのMerchantのデータを取得する
+- 指定したIDのMerchantのデータを編集する
+  例えば名前を変更する（そのようなユースケースはあまり実態に即してないけど）
+
+# step4-3
+
+- Merchantの新規登録のhtml form画面を作成する
+- 
